@@ -7,7 +7,7 @@ G = nx.Graph()
 red_line = ["Академмістечко", "Святошин" , "Берестейська" , "Шулявська" , "Вокзальна" , "Університет" , "Театральна", "Хрещатик"]
 blue_line = ["Героїв Дніпра" , "Оболонь" , "Почайна" , "Контрактова площа" , "Поштова площа" , "Майдан Незалежності" , "Площа Українських Героїв"]
 green_line = ["Сирець" , "Дорогожичі" , "Лук'янівська" , "Золоті ворота" , "Палац спорту" , 'Кловська']
-red_weights = [3, 4, 3, 2, 3, 2,2]
+red_weights = [3, 4, 3, 2, 3, 2, 2]
 blue_weights = [4, 3, 2, 3, 2, 3]
 green_weights = [3, 4, 2, 3, 3]
 transfer_weight = 1 
@@ -20,7 +20,6 @@ creating_edges(red_line, red_weights)
 creating_edges(blue_line, blue_weights)
 creating_edges(green_line, green_weights)
 
-
 transfers = [("Театральна", "Золоті ворота"),
             ("Хрещатик", "Майдан Незалежності"),
             ("Палац спорту", "Площа Українських Героїв")]
@@ -28,11 +27,9 @@ transfers = [("Театральна", "Золоті ворота"),
 for a, b in transfers:
     G.add_edge(a, b, weight=transfer_weight)
 
-
 pos = nx.spring_layout(G, seed=7) 
 nx.draw(G, pos, with_labels=True, node_size=1500, font_size=9)
 plt.show()
-
 
 
 def dijkstra(graph, start):
@@ -50,7 +47,7 @@ def dijkstra(graph, start):
         for neighbor, attrs in graph[current_vertex].items():
             weight = attrs['weight']
             new_dist = current_dist + weight
-
+            
             if new_dist < dist[neighbor]:
                 dist[neighbor] = new_dist
                 heapq.heappush(heap, (new_dist, neighbor))
