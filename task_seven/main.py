@@ -1,81 +1,44 @@
+import random
+import matplotlib.pyplot as plt
 
-def find_callories_greedy(products,budget):
-    items = []
-    for name, info in products.items():
-        cost = info["cost"]
-        calories = info["calories"]
-        ratio = calories/cost
-        items.append((name,cost,calories,ratio))
-    items.sort(key=lambda x: x[3], reverse=True)
-
-    selected = []
-    total_calories = 0
-    total_cost = 0
-    for name, cost, calories, _ in items:
-        if total_cost + cost <= budget:
-            selected.append(name)
-            total_cost += cost
-            total_calories += calories
-
-    return {"products": selected, 
-            "total_calories": total_calories, 
-            "total_cost": total_cost }
-
-
-
-
-def find_min_callories(products,budget):
-    items = []
-    choice = [None] * (budget + 1)
-    for name, info in products.items():
-        cost = info["cost"]
-        calories = info["calories"]
-        items.append((name,cost,calories))
-
-    dp = [0] * (budget + 1)
-
-    for name,cost,calories in items:
-        for b in range(budget,cost-1, -1):
-            candidate = dp[b - cost] + calories
-            if candidate > dp[b]:             
-                dp[b] = candidate
-                choice[b] = name
-
-    selected = []
-    total_cost = 0
-    b = budget
-    while b > 0 and choice[b] is not None:
-        name = choice[b]
-        selected.append(name)
-        c = products[name]["cost"]
-        total_cost += c
-        b -= c
-
-    selected.reverse()
-
-    return {
-        "products": selected,
-        "total_calories": dp[budget],
-        "total_cost":total_cost
-    }
-
-budget = 100
-products = {
-    "pizza": {"cost": 50, "calories": 300},
-    "hamburger": {"cost": 40, "calories": 250},
-    "hot-dog": {"cost": 30, "calories": 200},
-    "pepsi": {"cost": 10, "calories": 100},
-    "cola": {"cost": 15, "calories": 220},
-    "potato": {"cost": 25, "calories": 350}
+analytical_probabilities = {
+    2: 1/36, 3: 2/36, 4: 3/36, 5: 4/36, 6: 5/36,
+    7: 6/36, 8: 5/36, 9: 4/36, 10: 3/36, 11: 2/36, 12: 1/36
 }
 
-result_greedy = find_callories_greedy(products,budget)
-print(f'Результат виконання жадібного алгоритму :{result_greedy}')
-result_dp= find_min_callories(products,budget)
-print(f'Результат виконання dp :{result_dp}')
+def monte_carlo_simulation(trials: int):
+    sums_count = {i: 0 for i in range(2, 13)}
+
+    for _ in range(trials):
+        dice1 = random.randint(1, 6)
+        dice2 = random.randint(1, 6)
+        s = dice1 + dice2
+        sums_count[s] += 1
+
+    probabilities = {
+        s: count / trials for s, count in sums_count.items()
+    }
+    return probabilities
 
 
+def plot_probabilities(simulated, analytical):
+    sums = list(simulated.keys())
+    sim_values = list(simulated.values())
+    ana_values = [analytical[s] for s in sums]
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(sums, sim_values, width=0.4, label="Monte-Carlo", align='center')
+    plt.plot(sums, ana_values, color='red', marker='o', label="Analytical")
+
+    plt.xlabel("Сума на двох кубиках")
+    plt.ylabel("Ймовірність")
+    plt.title("Порівняння Monte-Carlo та аналітичних ймовірностей")
+    plt.legend()
+    plt.grid(axis='y')
+    plt.show()
 
 
+N = 100000
 
-
+simulated_probs = monte_carlo_simulation(N)
+plot_probabilities(simulated_probs, analytical_probabilities)
